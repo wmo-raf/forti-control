@@ -55,7 +55,7 @@ var All = []Module{
 		File:    "nowcast.json",
 		Title:   "Raw data forecaster",
 		Summary: "Data source, areas and loader strategy.",
-		Reloads: false,
+		Reloads: true,
 	},
 	{
 		Name:    "healthz",
