@@ -146,7 +146,18 @@ type Verdict struct {
 }
 
 // Headline is the one-line summary the UI shows.
-func (v Verdict) Headline() string { return v.State.Headline() }
+//
+// A configuration can be accepted in full and still not be in effect in full:
+// rawdataforecaster reloads its area list but reads its bucket and loader only
+// at startup. Saying plain "Live" over a pending_restart list would be this
+// project's own bug pattern in the UI — a change that quietly did nothing,
+// reported as though it had worked.
+func (v Verdict) Headline() string {
+	if v.State == StateLive && len(v.PendingRestart) > 0 {
+		return "Live, except for settings that need a restart"
+	}
+	return v.State.Headline()
+}
 
 // IsLive reports whether the service is running the file that is on disk.
 //

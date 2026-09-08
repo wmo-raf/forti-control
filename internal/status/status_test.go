@@ -3,6 +3,7 @@ package status
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -261,5 +262,27 @@ func TestErrorsFromAnEarlierVersionAreNotShownAgainstTheNewOne(t *testing.T) {
 	// actually on, which is the useful part of a stale report.
 	if got.LoadedSHA != shaA {
 		t.Errorf("LoadedSHA = %q, want the version the service last read", got.LoadedSHA)
+	}
+}
+
+// A module can accept a file completely and still not be running all of it.
+func TestHeadlineSeparatesLiveFromPendingRestart(t *testing.T) {
+	live := Verdict{State: StateLive}
+	if got := live.Headline(); got != "Live" {
+		t.Errorf("got %q, want %q", got, "Live")
+	}
+
+	partly := Verdict{State: StateLive, PendingRestart: []string{"source.bucket"}}
+	if got := partly.Headline(); got == live.Headline() {
+		t.Errorf("a verdict with pending restarts reads the same as one without: %q", got)
+	}
+	if !strings.Contains(partly.Headline(), "restart") {
+		t.Errorf("headline %q does not mention a restart", partly.Headline())
+	}
+
+	// A rejected file is not live at all; the pending list must not soften it.
+	rejected := Verdict{State: StateRejected, PendingRestart: []string{"source.bucket"}}
+	if got := rejected.Headline(); got != StateRejected.Headline() {
+		t.Errorf("got %q, want %q", got, StateRejected.Headline())
 	}
 }
