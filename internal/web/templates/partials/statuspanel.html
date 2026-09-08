@@ -1,0 +1,36 @@
+<section id="status" class="panel status"
+         hx-get="/modules/{{.Module.Name}}/status"
+         hx-trigger="every 1s, config-saved from:body"
+         hx-swap="outerHTML">
+  <h2>Status</h2>
+  {{template "badge.html" .Verdict}}
+
+  {{if .Verdict.ServingOlder}}
+    <p class="warn">The running service is not using the file on disk.</p>
+  {{end}}
+
+  {{with .Verdict}}
+    {{if .Errors}}
+      <p class="label">The service refused it:</p>
+      <ul class="errors">{{range .Errors}}<li>{{.}}</li>{{end}}</ul>
+    {{end}}
+    {{if .PendingRestart}}
+      <p class="label">Needs a restart to take effect:</p>
+      <ul class="pending">{{range .PendingRestart}}<li><code>{{.}}</code></li>{{end}}</ul>
+    {{end}}
+    {{if .Applied}}
+      <p class="label">Applied:</p>
+      <ul class="applied">{{range .Applied}}<li><code>{{.}}</code></li>{{end}}</ul>
+    {{end}}
+    {{if .LoadedSHA}}
+      {{/*
+        loaded_sha is the version the service last read, which is only the
+        version it is serving if it accepted it.
+      */}}
+      <p class="hint" title="{{stamp .LoadedAt}}">
+        {{if .IsLive}}Serving{{else}}Last read{{end}}
+        <code>{{short .LoadedSHA}}</code>, {{ago .LoadedAt}}
+      </p>
+    {{end}}
+  {{end}}
+</section>

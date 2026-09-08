@@ -1,0 +1,51 @@
+# forti-control alongside a forti service.
+#
+# The two containers share two volumes and nothing else. There is no network
+# between them, no RPC and no service discovery: the controller writes
+# /config, the service watches it, and the service writes /status, which the
+# controller reads. Either can be restarted without the other noticing.
+#
+# The mounts are deliberately asymmetric. Each side can only write the
+# directory it owns, so a bug in the controller cannot damage a service's
+# status report, and a bug in a service cannot damage the configuration.
+
+services:
+  forti-control:
+    build:
+      context: ..
+      dockerfile: build/package/Dockerfile
+    ports:
+      # Bound to the loopback interface: the session cookie is not marked
+      # secure by default, so the UI is not something to expose directly.
+      # Put it behind a reverse proxy that terminates TLS and pass
+      # -secure-cookie.
+      - "127.0.0.1:8081:8081"
+    environment:
+      # Set this to choose the first administrator's password. Leave it unset
+      # and the controller generates one and prints it to its log, once.
+      FORTI_CONTROL_ADMIN_PASSWORD: "${FORTI_CONTROL_ADMIN_PASSWORD:-}"
+    command:
+      # Name the file each module reads where it is not the default —
+      # rawdataforecaster runs once per product, so its file varies.
+      - -modules=jsonfrontend,rawdataforecaster=nowcast.json,healthz=probes.json
+    volumes:
+      - config:/config
+      - status:/status:ro
+      - control-data:/data
+
+  jsonfrontend:
+    image: forti-jsonfrontend:latest
+    ports:
+      - "8080:8080"
+    command:
+      - -config=/config/jsonformat.json
+      - -status-dir=/status
+      - -upstream=correctedforecaster:5051
+    volumes:
+      - config:/config:ro
+      - status:/status
+
+volumes:
+  config:
+  status:
+  control-data:

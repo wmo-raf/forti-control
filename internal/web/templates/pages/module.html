@@ -1,0 +1,32 @@
+{{define "content"}}
+<h1>{{.Module.Title}}</h1>
+<p class="lede"><code>{{.Module.File}}</code> — {{.Module.Summary}}</p>
+
+<div class="split">
+  <section class="editor">
+    <form hx-post="/modules/{{.Module.Name}}" hx-target="#saveresult" hx-swap="innerHTML">
+      <input type="hidden" name="csrf" value="{{.CSRF}}">
+      <input type="hidden" id="base" name="base" value="{{.BaseSHA}}">
+      <textarea name="content" spellcheck="false" autocapitalize="off" autocorrect="off">{{.Content}}</textarea>
+      <div class="actions">
+        <button type="submit">Save</button>
+        <span class="hint">Written atomically. The service decides whether it is usable.</span>
+      </div>
+    </form>
+    <div id="saveresult"></div>
+  </section>
+
+  {{template "sidebar.html" .}}
+</div>
+
+<script>
+// Tab indents rather than leaving the editor, which is what anybody editing
+// JSON in a textarea expects.
+document.querySelector('textarea[name=content]').addEventListener('keydown', function (e) {
+  if (e.key !== 'Tab') return;
+  e.preventDefault();
+  const start = this.selectionStart, end = this.selectionEnd;
+  this.setRangeText('  ', start, end, 'end');
+});
+</script>
+{{end}}

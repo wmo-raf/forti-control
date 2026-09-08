@@ -1,0 +1,9 @@
+{{define "content"}}
+<h1>{{.Module.Title}} — version {{.Snapshot.Short}}</h1>
+<p class="lede">
+  Saved {{stamp .Snapshot.Taken}}.
+  {{if .History}}{{if (index .History 0).Current}}This is what is on disk now.{{end}}{{end}}
+  <a href="/modules/{{.Module.Name}}">Back to the editor</a>
+</p>
+<pre class="snapshot">{{.SnapshotData}}</pre>
+{{end}}

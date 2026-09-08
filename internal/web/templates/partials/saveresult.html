@@ -1,0 +1,16 @@
+{{if .Problems}}
+{{range .Problems}}<p class="banner error">Not saved — {{.}}</p>{{end}}
+<p class="hint">Nothing was written. The service is still serving what it had.</p>
+{{else if .Notice}}
+{{/*
+  The editor is now open on the version it just wrote, so its base digest has
+  to move with it — otherwise the next save from this tab looks like a save
+  against a version somebody else replaced, which is what it would be if this
+  tab had not been the one to replace it.
+
+  A refused save deliberately does not do this: there, the file really did
+  move under the editor, and reloading is the only honest way forward.
+*/}}
+<input type="hidden" id="base" name="base" value="{{.BaseSHA}}" hx-swap-oob="true">
+<p class="banner notice">{{.Notice}}</p>
+{{end}}

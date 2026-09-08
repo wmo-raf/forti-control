@@ -1,0 +1,19 @@
+{{if .}}
+<ol class="activity">
+{{range .}}
+  <li class="action-{{.Action}}">
+    <span class="when" title="{{stamp .At}}">{{ago .At}}</span>
+    <span class="what">{{.Action}}</span>
+    <span class="who">{{.User}}</span>
+    <span class="where">{{.Module}}</span>
+    {{if .SnapshotSHA}}
+      <a class="sha" href="/modules/{{.Module}}/snapshots/{{.SnapshotSHA}}">{{short .SnapshotSHA}}</a>
+      {{if .PreviousSHA}}<span class="from">was <a class="sha" href="/modules/{{.Module}}/snapshots/{{.PreviousSHA}}">{{short .PreviousSHA}}</a></span>{{end}}
+    {{end}}
+    {{if .Note}}<span class="note">{{.Note}}</span>{{end}}
+  </li>
+{{end}}
+</ol>
+{{else}}
+<p class="empty">Nothing yet.</p>
+{{end}}

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.Title}} · forti-control</title>
+<link rel="stylesheet" href="/static/app.css">
+<script src="/static/htmx.min.js"></script>
+</head>
+<body>
+{{if .User.Name}}
+<header class="topbar">
+  <a class="brand" href="/">forti<span>-control</span></a>
+  <nav>
+    <a href="/">Modules</a>
+    <a href="/audit">Activity</a>
+  </nav>
+  <form class="signout" method="post" action="/logout">
+    <input type="hidden" name="csrf" value="{{.CSRF}}">
+    <span class="who">{{.User.Name}}</span>
+    <button type="submit" class="link">Sign out</button>
+  </form>
+</header>
+{{end}}
+<main>
+{{if .Error}}<p class="banner error">{{.Error}}</p>{{end}}
+{{if .Notice}}<p class="banner notice">{{.Notice}}</p>{{end}}
+{{template "content" .}}
+</main>
+</body>
+</html>

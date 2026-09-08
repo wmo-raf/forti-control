@@ -1,0 +1,44 @@
+{{/*
+  History and activity are refreshed when a save happens, not on a timer. The
+  status panel beside them polls; this one must not, because a poll would
+  close the restore confirmation every few seconds while somebody is reading
+  it.
+*/}}
+<div id="history"
+     hx-get="/modules/{{.Module.Name}}/history"
+     hx-trigger="config-saved from:body"
+     hx-swap="outerHTML">
+
+  <section class="panel history">
+    <h2>History</h2>
+    {{if .History}}
+    <ol class="versions">
+      {{range .History}}
+      <li>
+        <a class="sha" href="/modules/{{$.Module.Name}}/snapshots/{{.Snapshot.SHA}}">{{.Snapshot.Short}}</a>
+        <span class="when" title="{{stamp .Snapshot.Taken}}">{{ago .Snapshot.Taken}}</span>
+        {{if .Current}}<span class="tag on-disk">on disk</span>{{end}}
+        {{if .Live}}<span class="tag live">live</span>{{end}}
+        {{if not .Current}}
+        <details class="restore">
+          <summary>Restore</summary>
+          <form method="post" action="/modules/{{$.Module.Name}}/restore">
+            <input type="hidden" name="csrf" value="{{$.CSRF}}">
+            <input type="hidden" name="sha" value="{{.Snapshot.SHA}}">
+            <button type="submit">Write this version back</button>
+          </form>
+        </details>
+        {{end}}
+      </li>
+      {{end}}
+    </ol>
+    {{else}}
+    <p class="empty">No versions yet.</p>
+    {{end}}
+  </section>
+
+  <section class="panel">
+    <h2>Activity</h2>
+    {{template "activity.html" .Audit}}
+  </section>
+</div>

@@ -1,0 +1,20 @@
+{{define "content"}}
+<h1>Modules</h1>
+<p class="lede">
+  Configuration files on the shared volume. Services watch their own file and
+  reload in place; the badge says what each one is actually serving.
+</p>
+
+<ul class="modules">
+{{range .Modules}}
+  <li>
+    <a class="module" href="/modules/{{.Module.Name}}">
+      <span class="name">{{.Module.Title}}</span>
+      <code class="file">{{.Module.File}}</code>
+      <span class="summary">{{.Module.Summary}}</span>
+      {{template "badge.html" .Verdict}}
+    </a>
+  </li>
+{{end}}
+</ul>
+{{end}}
